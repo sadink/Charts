@@ -111,7 +111,7 @@ bintray {
     configurations = ['archives']
     pkg {
         repo = "maven" // 在bintray上边建立的仓库名字
-        name = "NotchTools" // 在bintray上Package名字
+        name = PROJ_NAME // 在bintray上Package名字
         websiteUrl = PROJ_WEBSITEURL
         vcsUrl = PROJ_VCSURL
         labels = ['android']  // 设置标签
