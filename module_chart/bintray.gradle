@@ -1,0 +1,121 @@
+//        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+//        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.0'
+
+group = PROJ_GROUP
+version = PROJ_VERSION
+project.archivesBaseName = PROJ_ARTIFACTID
+
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'com.github.dcendents.android-maven'
+
+// 生成对应的source.jar
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+// 生成java doc文件
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += configurations.compile
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    // 第三方依赖加入 classpath
+    classpath += project.files(configurations.compile.files,android.getBootClasspath().join(File.pathSeparator))
+}
+
+// 生成对应的javadoc.jar
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+task syncJavadoc(type: Sync, dependsOn: javadoc) {
+    from javadoc.destinationDir
+    into rootProject.file('docs')
+}
+
+javadoc {
+    options{
+        encoding "UTF-8"
+        charSet 'UTF-8'
+        author true
+        version true
+        title "$PROJ_NAME $PROJ_VERSION"
+        String packageListRef = "${android.sdkDirectory}/docs/reference/"
+        linksOffline 'http://d.android.com/reference/', packageListRef
+    }
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+// 避免javadoc的检查
+tasks.withType(Javadoc) {
+    options.addStringOption('Xdoclint:none', '-quiet')
+    options.addStringOption('encoding', 'UTF-8')
+}
+
+
+install {
+    repositories.mavenInstaller {
+        // 生成pom.xml
+        pom.project {
+            name PROJ_NAME
+            description PROJ_DESCRIPTION
+            url PROJ_WEBSITEURL
+            inceptionYear '2019'
+
+            packaging 'aar' // 打包的类型
+            groupId PROJ_GROUP
+            artifactId PROJ_ARTIFACTID
+            version PROJ_VERSION
+            // 配置开源证书信息
+            licenses {
+                license {
+                    name 'The Apache Software License, Version 2.0'
+                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    distribution 'repo'
+                }
+            }
+            scm {
+                connection PROJ_VCSURL
+                url PROJ_WEBSITEURL
+            }
+            // 配置开发者信息
+            developers {
+                developer {
+                    id DEVELOPER_ID
+                    name DEVELOPER_NAME
+                    email DEVELOPER_EMAIL
+                }
+            }
+        }
+    }
+}
+
+// 读取配置的bintray用户的信息
+Properties properties = new Properties()
+boolean isHasFile = false
+if (project.rootProject.file('local.properties') != null){
+    isHasFile = true
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+}
+
+// 配置bintray的信息
+bintray {
+    user = isHasFile ? properties.getProperty("bintray.user") : System.getenv("bintray.user")
+    key = isHasFile ? properties.getProperty("bintray.apikey") : System.getenv("bintray.apikey")
+
+    configurations = ['archives']
+    pkg {
+        repo = "maven" // 在bintray上边建立的仓库名字
+        name = "NotchTools" // 在bintray上Package名字
+        websiteUrl = PROJ_WEBSITEURL
+        vcsUrl = PROJ_VCSURL
+        labels = ['android']  // 设置标签
+        licenses = ["Apache-2.0"]
+        publish = true
+    }
+}

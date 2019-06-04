@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="RoseLeafChart">
+        <attr name="roseArcStartAngle" format="integer" />
+        <attr name="roseLabelTextColor" format="color" />
+        <attr name="roseRadiusCircleLegal" format="dimension" />
+        <attr name="roseIsLabelLineColorFromLeaf" format="boolean" />
+        <attr name="roseCircleLegalColor" format="color" />
+        <attr name="roseCircleSideColor" format="color" />
+    </declare-styleable>
+</resources>
