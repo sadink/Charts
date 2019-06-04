@@ -3,7 +3,6 @@ package com.lhf.demo;
 import android.app.Activity;
 import android.os.Bundle;
 
-import com.lhf.charts.R;
 import com.lhf.charts.mode.entity.RoseEntity;
 import com.lhf.charts.widget.rose.RoseChartView;
 
